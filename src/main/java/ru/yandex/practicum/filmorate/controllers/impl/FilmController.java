@@ -11,7 +11,7 @@ import javax.validation.Valid;
 @Slf4j
 @RequestMapping("/films")
 public class FilmController extends Controller {
-    @RequestMapping(method={RequestMethod.POST, RequestMethod.PUT})
+    @RequestMapping(method = {RequestMethod.POST, RequestMethod.PUT})
     public Film create(@RequestBody @Valid Film film) {
         add(film);
         return film;

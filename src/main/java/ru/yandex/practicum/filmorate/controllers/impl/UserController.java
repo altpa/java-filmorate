@@ -11,7 +11,7 @@ import javax.validation.Valid;
 @Slf4j
 @RequestMapping("/users")
 public class UserController extends Controller {
-    @RequestMapping(method={RequestMethod.POST, RequestMethod.PUT})
+    @RequestMapping(method = {RequestMethod.POST, RequestMethod.PUT})
     public User create(@RequestBody @Valid User user) {
         log.info("Получен запрос для пользователя");
         checkEmptyName(user);
