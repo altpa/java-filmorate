@@ -9,7 +9,8 @@ import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
 
-@Getter @Setter
+@Getter
+@Setter
 public class Film extends Model {
     @NotBlank(message = "Название фильма не может быть пустым")
     private final String name;

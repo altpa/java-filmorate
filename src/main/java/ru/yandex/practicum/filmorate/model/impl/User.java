@@ -9,7 +9,8 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Past;
 import java.time.LocalDate;
 
-@Getter @Setter
+@Getter
+@Setter
 public class User extends Model {
     @Email(message = "Ошибка в email пользователя")
     private final String email;
