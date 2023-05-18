@@ -1,11 +1,14 @@
 package ru.yandex.practicum.filmorate.controllers;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Model;
-
-import java.util.*;
 
 @RestController
 @Slf4j
@@ -32,7 +35,7 @@ public class Controller {
     }
 
     @GetMapping
-    public List<Model> get(){
+    public List<Model> get() {
         log.info("Получен GET запрос");
         return new ArrayList<>(data.values());
     }

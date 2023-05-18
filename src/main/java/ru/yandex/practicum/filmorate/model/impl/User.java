@@ -19,7 +19,7 @@ public class User extends Model {
     @Past(message = "Ошибка в дате рождения")
     private final LocalDate birthday;
     @Builder
-    public User(int id, String email, String login, String name, LocalDate birthday){
+    public User(int id, String email, String login, String name, LocalDate birthday) {
         super(id, name);
         this.email = email;
         this.login = login;

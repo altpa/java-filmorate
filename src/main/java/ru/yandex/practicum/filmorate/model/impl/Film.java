@@ -22,7 +22,7 @@ public class Film extends Model {
     private final int rate;
 
     @Builder
-    public Film(int id, String name, String description, LocalDate releaseDate, int duration, int rate){
+    public Film(int id, String name, String description, LocalDate releaseDate, int duration, int rate) {
         super(id);
         this.name = name;
         this.description = description;
