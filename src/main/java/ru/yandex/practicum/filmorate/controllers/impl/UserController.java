@@ -18,6 +18,7 @@ public class UserController extends Controller {
         add(user);
         return user;
     }
+
     private void checkEmptyName(User user) {
         log.info("Начата проверка имени пользователя с логином {}", user.getLogin());
         if (user.getName() == null) {
