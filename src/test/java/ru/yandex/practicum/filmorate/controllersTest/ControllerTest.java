@@ -15,6 +15,7 @@ public class ControllerTest {
     Controller controller;
     Film film;
     User user;
+
     @BeforeEach
     public void beforeEach() {
         controller = new Controller();
