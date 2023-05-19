@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.model.spacesValidatorAnnotations;
+package ru.yandex.practicum.filmorate.validatorAnnotations.spacesValidatorAnnotations;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;

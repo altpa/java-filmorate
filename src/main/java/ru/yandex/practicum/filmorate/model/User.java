@@ -1,17 +1,18 @@
-package ru.yandex.practicum.filmorate.model.impl;
+package ru.yandex.practicum.filmorate.model;
 
 import lombok.*;
-import ru.yandex.practicum.filmorate.model.Model;
-import ru.yandex.practicum.filmorate.model.spacesValidatorAnnotations.NoSpaces;
+import ru.yandex.practicum.filmorate.validatorAnnotations.spacesValidatorAnnotations.NoSpaces;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Past;
 import java.time.LocalDate;
 
-@Getter
-@Setter
-public class User extends Model {
+@Data
+@AllArgsConstructor
+public class User {
+    private int id;
+    private String name;
     @Email(message = "Ошибка в email пользователя")
     private final String email;
     @NotBlank(message = "Логин не может быть пустым")
@@ -20,11 +21,11 @@ public class User extends Model {
     @Past(message = "Ошибка в дате рождения")
     private final LocalDate birthday;
 
-    @Builder
-    public User(int id, String email, String login, String name, LocalDate birthday) {
-        super(id, name);
-        this.email = email;
-        this.login = login;
-        this.birthday = birthday;
-    }
+//    @Builder
+//    public User(int id, String email, String login, String name, LocalDate birthday) {
+//        super(id, name);
+//        this.email = email;
+//        this.login = login;
+//        this.birthday = birthday;
+//    }
 }
