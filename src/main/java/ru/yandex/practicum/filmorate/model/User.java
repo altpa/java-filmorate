@@ -20,12 +20,4 @@ public class User {
     private final String login;
     @Past(message = "Ошибка в дате рождения")
     private final LocalDate birthday;
-
-//    @Builder
-//    public User(int id, String email, String login, String name, LocalDate birthday) {
-//        super(id, name);
-//        this.email = email;
-//        this.login = login;
-//        this.birthday = birthday;
-//    }
 }

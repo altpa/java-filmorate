@@ -1,7 +1,13 @@
 package ru.yandex.practicum.filmorate.controllers;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.*;
+import lombok.val;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -19,20 +25,20 @@ public class UserController {
     private int idCounter = 1;
 
     @PostMapping
-    public User addUser(@RequestBody @Valid User user) {
-        log.info("Получен POST запрос для добавления пользователя {}", user.getName());
+    public User addUser(@Valid @RequestBody User user) {
+        log.info("Получен POST запрос для добавления пользователя: {}", user);
         checkEmptyName(user);
         user.setId(idCounter++);
         users.put(user.getId(), user);
-        log.info("Пользователь {} добавлен. id={}", user.getName(), user.getId());
+        log.info("Пользователь добавлен: {}", user);
         return user;
     }
 
     @PutMapping
-    public User updateUser(@RequestBody @Valid User user) {
-        log.info("Получен PUT запрос для обновления пользователя {}, id={}", user.getName(), user.getId());
+    public User updateUser(@Valid @RequestBody User user) {
+        log.info("Получен PUT запрос для обновления пользователя: {},", user);
         if (users.containsKey(user.getId())) {
-            log.info("Обновлен будет пользователь {}", users.get(user.getId()).getName());
+            log.info("Обновлен будет пользователь: {}", users.get(user.getId()));
             users.put(user.getId(), user);
             log.info("Данные пользователя обновлены");
         } else {
@@ -44,8 +50,9 @@ public class UserController {
 
     @GetMapping
     public List<User> getUsers() {
-        log.info("Получен GET запрос для списка пользователей. Всего пользователей: {}", users.size());
-        return new ArrayList<>(users.values());
+        val allUsers = new ArrayList<>(users.values());
+        log.info("Получен GET запрос для списка пользователей: {}", allUsers);
+        return allUsers;
     }
 
     private void checkEmptyName(User user) {
@@ -54,6 +61,6 @@ public class UserController {
             user.setName(user.getLogin());
             log.info("Пользователю {} присвоен логин как имя", user.getLogin());
         }
-        log.info("Пользователь {} прошел проверку имени", user.getName());
+        log.info("Пользователь {} прошел проверку имени: {}", user.getName(), user);
     }
 }

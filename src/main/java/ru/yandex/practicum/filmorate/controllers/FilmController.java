@@ -1,7 +1,13 @@
 package ru.yandex.practicum.filmorate.controllers;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.*;
+import lombok.val;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
@@ -19,19 +25,19 @@ public class FilmController {
     private int idCounter = 1;
 
     @PostMapping
-    public Film addFilm(@RequestBody @Valid Film film) {
-        log.info("Получен POST запрос для добавления фильма {}", film.getName());
+    public Film addFilm(@Valid @RequestBody Film film) {
+        log.info("Получен POST запрос для добавления фильма: {}", film);
         film.setId(idCounter++);
         films.put(film.getId(), film);
-        log.info("Фильм {} добавлен. id={}", film.getName(), film.getId());
+        log.info("Фильм добавлен: {}", film);
         return film;
     }
 
     @PutMapping
-    public Film updateFilm(@RequestBody @Valid Film film) {
-        log.info("Получен PUT запрос для обновления фильма {}, id={}", film.getName(), film.getId());
+    public Film updateFilm(@Valid @RequestBody Film film) {
+        log.info("Получен PUT запрос для обновления фильма: {}", film);
         if (films.containsKey(film.getId())) {
-            log.info("Будет обновлен фильм {}", films.get(film.getId()).getName());
+            log.info("Будет обновлен фильм {}", films.get(film.getId()));
             films.put(film.getId(), film);
             log.info("Данные фильма обновлены");
         } else {
@@ -43,7 +49,8 @@ public class FilmController {
 
     @GetMapping
     public List<Film> getFilms() {
-        log.info("Получен GET запрос для списка фильмов. Всего фильмов: {}", films.size());
-        return new ArrayList<>(films.values());
+        val allFilms = new ArrayList<>(films.values());
+        log.info("Получен GET запрос для списка фильмов: {}", allFilms);
+        return allFilms;
     }
 }
