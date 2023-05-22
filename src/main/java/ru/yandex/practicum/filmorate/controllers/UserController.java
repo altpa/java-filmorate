@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.utils.ControllerUtil;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
@@ -27,7 +27,7 @@ public class UserController {
     @PostMapping
     public User addUser(@Valid @RequestBody User user) {
         log.info("Получен POST запрос для добавления пользователя: {}", user);
-        checkEmptyName(user);
+        ControllerUtil.checkEmptyName(user);
         user.setId(idCounter++);
         users.put(user.getId(), user);
         log.info("Пользователь добавлен: {}", user);
@@ -37,30 +37,14 @@ public class UserController {
     @PutMapping
     public User updateUser(@Valid @RequestBody User user) {
         log.info("Получен PUT запрос для обновления пользователя: {},", user);
-        if (users.containsKey(user.getId())) {
-            log.info("Обновлен будет пользователь: {}", users.get(user.getId()));
-            users.put(user.getId(), user);
-            log.info("Данные пользователя обновлены");
-        } else {
-            log.error("Ошибка обновления пользователя.");
-            throw new ValidationException("Пользователя с id=" + user.getId() + " нет. Невозможно обновить");
-        }
-        return user;
+        return ControllerUtil.checkUser(users, user);
     }
 
     @GetMapping
     public List<User> getUsers() {
-        val allUsers = new ArrayList<>(users.values());
-        log.info("Получен GET запрос для списка пользователей: {}", allUsers);
-        return allUsers;
-    }
-
-    private void checkEmptyName(User user) {
-        log.info("Начата проверка имени пользователя с логином {}", user.getLogin());
-        if (user.getName() == null) {
-            user.setName(user.getLogin());
-            log.info("Пользователю {} присвоен логин как имя", user.getLogin());
-        }
-        log.info("Пользователь {} прошел проверку имени: {}", user.getName(), user);
+        log.info("Получен GET запрос для списка пользователей");
+        val answer = new ArrayList<>(this.users.values());
+        log.info("Отправлен список пользователей: {}", answer);
+        return answer;
     }
 }

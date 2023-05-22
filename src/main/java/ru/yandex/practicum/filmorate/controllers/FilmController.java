@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.utils.ControllerUtil;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
@@ -36,21 +36,14 @@ public class FilmController {
     @PutMapping
     public Film updateFilm(@Valid @RequestBody Film film) {
         log.info("Получен PUT запрос для обновления фильма: {}", film);
-        if (films.containsKey(film.getId())) {
-            log.info("Будет обновлен фильм {}", films.get(film.getId()));
-            films.put(film.getId(), film);
-            log.info("Данные фильма обновлены");
-        } else {
-            log.error("Ошибка обновления фильма.");
-            throw new ValidationException("Фильма с id=" + film.getId() + " нет. Невозможно обновить");
-        }
-        return film;
+        return ControllerUtil.checkFilm(films, film);
     }
 
     @GetMapping
     public List<Film> getFilms() {
-        val allFilms = new ArrayList<>(films.values());
-        log.info("Получен GET запрос для списка фильмов: {}", allFilms);
-        return allFilms;
+        log.info("Получен GET запрос для списка фильмов");
+        val answer = new ArrayList<>(films.values());
+        log.info("Отправлен список фильмов: {}", answer);
+        return answer;
     }
 }
