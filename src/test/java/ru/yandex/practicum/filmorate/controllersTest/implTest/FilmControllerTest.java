@@ -4,7 +4,7 @@ import lombok.Cleanup;
 import org.junit.Before;
 import org.junit.Test;
 import ru.yandex.practicum.filmorate.controllers.FilmController;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.exceptions.filmException.UpdateFilmException;
 import ru.yandex.practicum.filmorate.model.Film;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -77,7 +77,7 @@ public class FilmControllerTest {
     public void shouldUpdateFilmUnknown() {
         FilmController filmController = new FilmController();
         Film newFilm = new Film(9999, "Name", "Description", LocalDate.of(2000, 1,1), 100, 0);
-        Exception exception = assertThrows(ValidationException.class, () -> filmController.updateFilm(newFilm));
+        Exception exception = assertThrows(UpdateFilmException.class, () -> filmController.updateFilm(newFilm));
         String expectedMessage = "Невозможно обновить";
         String actualMessage = exception.getMessage();
 

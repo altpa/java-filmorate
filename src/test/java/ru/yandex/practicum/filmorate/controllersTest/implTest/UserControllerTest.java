@@ -4,7 +4,7 @@ import lombok.Cleanup;
 import org.junit.Before;
 import org.junit.Test;
 import ru.yandex.practicum.filmorate.controllers.UserController;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.exceptions.userExceptions.UpdateUserException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import javax.validation.ConstraintViolation;
@@ -87,7 +87,7 @@ public class UserControllerTest {
     public void shouldUpdateUserUnknown() {
         UserController userController = new UserController();
         User newUser = new User(9999, "New Name", "email@email.com", "New_login", LocalDate.of(1990, 1, 1));
-        Exception exception = assertThrows(ValidationException.class, () -> userController.updateUser(newUser));
+        Exception exception = assertThrows(UpdateUserException.class, () -> userController.updateUser(newUser));
         String expectedMessage = "Невозможно обновить";
         String actualMessage = exception.getMessage();
 
