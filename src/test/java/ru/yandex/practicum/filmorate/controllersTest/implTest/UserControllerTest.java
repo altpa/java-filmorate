@@ -4,7 +4,7 @@ import lombok.Cleanup;
 import org.junit.Before;
 import org.junit.Test;
 import ru.yandex.practicum.filmorate.controllers.UserController;
-import ru.yandex.practicum.filmorate.exceptions.userExceptions.UpdateUserException;
+import ru.yandex.practicum.filmorate.exceptions.userExceptions.InternalServerErrorUserException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import javax.validation.ConstraintViolation;
@@ -64,7 +64,7 @@ public class UserControllerTest {
     public void shouldAddNewUserWhenEmptyName() {
         UserController userController = new UserController();
 
-        User userNoName = new User(0, null, "email@email.com", "login", LocalDate.of(2000, 1, 1));
+        User userNoName = new User(0, "", "email@email.com", "login", LocalDate.of(2000, 1, 1));
         userNoName = userController.addUser(userNoName);
 
         User userWithName = new User(1, "login", "email@email.com", "login", LocalDate.of(2000, 1, 1));
@@ -87,8 +87,8 @@ public class UserControllerTest {
     public void shouldUpdateUserUnknown() {
         UserController userController = new UserController();
         User newUser = new User(9999, "New Name", "email@email.com", "New_login", LocalDate.of(1990, 1, 1));
-        Exception exception = assertThrows(UpdateUserException.class, () -> userController.updateUser(newUser));
-        String expectedMessage = "Невозможно обновить";
+        Exception exception = assertThrows(InternalServerErrorUserException.class, () -> userController.updateUser(newUser));
+        String expectedMessage = "Такого пользователя нет id: 9999, некого обновлять";
         String actualMessage = exception.getMessage();
 
         assertTrue(actualMessage.contains(expectedMessage));
