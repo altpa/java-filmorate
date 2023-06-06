@@ -5,7 +5,11 @@ import org.junit.Before;
 import org.junit.Test;
 import ru.yandex.practicum.filmorate.controllers.UserController;
 import ru.yandex.practicum.filmorate.exceptions.userExceptions.InternalServerErrorUserException;
+import ru.yandex.practicum.filmorate.exceptions.userExceptions.NotFoundUserException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.impl.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.validation.UserAndFilmValidation;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -62,7 +66,7 @@ public class UserControllerTest {
 
     @Test
     public void shouldAddNewUserWhenEmptyName() {
-        UserController userController = new UserController();
+        UserController userController = new UserController(new UserService(new InMemoryUserStorage(), new UserAndFilmValidation()));
 
         User userNoName = new User(0, "", "email@email.com", "login", LocalDate.of(2000, 1, 1));
         userNoName = userController.addUser(userNoName);
@@ -74,7 +78,7 @@ public class UserControllerTest {
 
     @Test
     public void shouldUpdateUser() {
-        UserController userController = new UserController();
+        UserController userController = new UserController(new UserService(new InMemoryUserStorage(), new UserAndFilmValidation()));
         User user = new User(0, "Name", "email@email.com", "login", LocalDate.of(1900, 1, 1));
         userController.addUser(user);
         User newUser = new User(1, "New Name", "email@email.com", "New_login", LocalDate.of(1990, 1, 1));
@@ -85,10 +89,10 @@ public class UserControllerTest {
 
     @Test
     public void shouldUpdateUserUnknown() {
-        UserController userController = new UserController();
+        UserController userController = new UserController(new UserService(new InMemoryUserStorage(), new UserAndFilmValidation()));
         User newUser = new User(9999, "New Name", "email@email.com", "New_login", LocalDate.of(1990, 1, 1));
-        Exception exception = assertThrows(InternalServerErrorUserException.class, () -> userController.updateUser(newUser));
-        String expectedMessage = "Такого пользователя нет id: 9999, некого обновлять";
+        Exception exception = assertThrows(NotFoundUserException.class, () -> userController.updateUser(newUser));
+        String expectedMessage = "Такого пользователя нет, id: 9999";
         String actualMessage = exception.getMessage();
 
         assertTrue(actualMessage.contains(expectedMessage));
