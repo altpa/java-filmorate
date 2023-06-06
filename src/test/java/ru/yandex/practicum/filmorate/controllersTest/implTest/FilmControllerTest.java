@@ -4,7 +4,6 @@ import lombok.Cleanup;
 import org.junit.Before;
 import org.junit.Test;
 import ru.yandex.practicum.filmorate.controllers.FilmController;
-import ru.yandex.practicum.filmorate.exceptions.filmException.InternalServerErrorFilmException;
 import ru.yandex.practicum.filmorate.exceptions.filmException.NotFoundFilmException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;

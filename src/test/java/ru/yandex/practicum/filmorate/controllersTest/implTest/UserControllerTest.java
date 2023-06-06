@@ -4,7 +4,6 @@ import lombok.Cleanup;
 import org.junit.Before;
 import org.junit.Test;
 import ru.yandex.practicum.filmorate.controllers.UserController;
-import ru.yandex.practicum.filmorate.exceptions.userExceptions.InternalServerErrorUserException;
 import ru.yandex.practicum.filmorate.exceptions.userExceptions.NotFoundUserException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
