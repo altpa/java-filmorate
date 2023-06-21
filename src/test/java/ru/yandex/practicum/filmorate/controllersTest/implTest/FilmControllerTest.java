@@ -4,8 +4,12 @@ import lombok.Cleanup;
 import org.junit.Before;
 import org.junit.Test;
 import ru.yandex.practicum.filmorate.controllers.FilmController;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.exceptions.filmException.NotFoundFilmException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.impl.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.validation.UserAndFilmValidation;
+
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -64,7 +68,7 @@ public class FilmControllerTest {
 
     @Test
     public void shouldUpdateFilm() {
-        FilmController filmController = new FilmController();
+        FilmController filmController = new FilmController(new FilmService(new InMemoryFilmStorage(), new UserAndFilmValidation()));
         Film film = new Film(0, "Name", "Description", LocalDate.of(2000, 1,1), 100, 0);
         filmController.addFilm(film);
         Film newFilm = new Film(1, "New Name", "New Description", LocalDate.of(1990, 1,1), 100, 0);
@@ -75,10 +79,10 @@ public class FilmControllerTest {
 
     @Test
     public void shouldUpdateFilmUnknown() {
-        FilmController filmController = new FilmController();
+        FilmController filmController = new FilmController(new FilmService(new InMemoryFilmStorage(), new UserAndFilmValidation()));
         Film newFilm = new Film(9999, "Name", "Description", LocalDate.of(2000, 1,1), 100, 0);
-        Exception exception = assertThrows(ValidationException.class, () -> filmController.updateFilm(newFilm));
-        String expectedMessage = "Невозможно обновить";
+        Exception exception = assertThrows(NotFoundFilmException.class, () -> filmController.updateFilm(newFilm));
+        String expectedMessage = "Такого фильма нет, id: 9999";
         String actualMessage = exception.getMessage();
 
         assertTrue(actualMessage.contains(expectedMessage));
