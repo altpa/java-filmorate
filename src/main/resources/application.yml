@@ -1,2 +1,23 @@
 server:
   port: 8080
+
+spring:
+  sql.init.mode: always
+  datasource:
+#    url: jdbc:h2:file:./db/filmorate
+    url: jdbc:postgresql://localhost:5432/filmorate
+#    driverClassName: org.h2.Driver
+    driverClassName: org.postgresql.Driver
+    jpa:
+      database: postgresql
+      database-platform: org.hibernate.dialect.PostgreSQL10Dialect
+#    username: sa
+#    password: password
+    username: filmorate
+    password: password
+#  h2:
+#    console:
+#      enabled: true
+#      path: /h2
+#      settings.trace: false
+#      settings.web-allow-others: false

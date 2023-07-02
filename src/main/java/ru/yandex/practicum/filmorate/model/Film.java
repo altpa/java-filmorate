@@ -6,7 +6,7 @@ import ru.yandex.practicum.filmorate.validatorAnnotations.dateValidatorAnnotatio
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
-import java.time.LocalDate;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -19,10 +19,12 @@ public class Film {
     @Size(max = 200)
     private final String description;
     @InMovieEpoch
-    private final LocalDate releaseDate;
+    private final Date releaseDate;
     @Positive(message = "Продолжительность фильма не может быть отрицательной")
     private final int duration;
     private final int rate;
     private final Set<Integer> likes = new HashSet<>();
+    private final int rating;
+    private final int genre;
 }
 
