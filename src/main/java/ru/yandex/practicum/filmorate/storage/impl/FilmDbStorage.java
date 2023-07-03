@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Map;
 
 @Component("filmDbStorage")
@@ -66,6 +67,11 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public void deleteLike(int id, int userId) {
         jdbcTemplate.update("DELETE FROM likes WHERE film_id = ? AND user_id = ?", id, userId);
+    }
+
+    @Override
+    public List<Film> getMostLiked(String countParam) {
+        return null;
     }
 
     private Film createFilm(ResultSet rs) throws SQLException {
