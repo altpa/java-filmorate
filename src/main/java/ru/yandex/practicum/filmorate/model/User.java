@@ -6,7 +6,7 @@ import ru.yandex.practicum.filmorate.validatorAnnotations.spacesValidatorAnnotat
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Past;
-import java.time.LocalDate;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -21,6 +21,6 @@ public class User {
     @NoSpaces
     private final String login;
     @Past(message = "Ошибка в дате рождения")
-    private final LocalDate birthday;
+    private final Date birthday;
     private final Set<Integer> friends = new HashSet<>();
 }

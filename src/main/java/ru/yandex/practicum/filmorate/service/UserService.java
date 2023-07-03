@@ -11,82 +11,68 @@ import ru.yandex.practicum.filmorate.validation.UserAndFilmValidation;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class UserService {
     private final UserAndFilmValidation validator;
-    private int idCounter = 1;
-    Map<Integer, User> users;
+    private final UserStorage users;
 
     @Autowired
-    public UserService(@Qualifier("inMemoryUserStorage") UserStorage userStorage, UserAndFilmValidation validation) {
+    public UserService(@Qualifier("userDbStorage") UserStorage userStorage, UserAndFilmValidation validation) {
         this.validator = validation;
-        users = userStorage.getUsers();
+        this.users = userStorage;
     }
 
     public User addUser(User user) {
         validator.checkUserRequest(user);
         validator.checkEmptyName(user);
-        user.setId(idCounter++);
-        users.put(user.getId(), user);
+        users.addUser(user);
         return user;
     }
 
     public User updateUser(User user) {
         validator.checkUserRequest(user);
-        validator.checkUsersContainUser(users, user);
-        log.info("Обновлен будет пользователь: {}", users.get(user.getId()));
-        users.put(user.getId(), user);
+        validator.checkUsersContainUser(users.getUsers(), user);
+        log.info("Обновлен будет пользователь: {}", user);
+        users.updateUser(user);
         return user;
     }
 
     public User addToFriends(int id, int friendId) {
-        validator.checkUserNull(users, users.get(id));
-        validator.checkUserNull(users, users.get(friendId));
-        users.get(id).getFriends().add(friendId);
-        users.get(friendId).getFriends().add(id);
-        return users.get(id);
+        validator.checkUserNull(users.getUsers(), users.getUserById(id));
+        validator.checkUserNull(users.getUsers(), users.getUserById(friendId));
+        users.addToFriends(id, friendId);
+        return users.getUserById(id);
     }
 
     public User deleteFromFriends(int id, int friendId) {
-        validator.checkUserNull(users, users.get(id));
-        users.get(id).getFriends().remove(friendId);
-        users.get(friendId).getFriends().remove(id);
-        return users.get(id);
+        validator.checkUserNull(users.getUsers(), users.getUserById(id));
+        users.deleteFromFriends(id, friendId);
+        return users.getUserById(id);
     }
 
     public List<User> getFriends(int id) {
-        validator.checkUserNull(users, users.get(id));
-        Set<Integer> friendsIds = users.get(id).getFriends();
-        List<User> answer = new ArrayList<>();
-        for (int friendId: friendsIds) {
-            answer.add(users.get(friendId));
-        }
-        return answer;
+        validator.checkUserNull(users.getUsers(), users.getUserById(id));
+        return users.getFriends(id);
     }
 
     public List<User> getCommonFriends(int id, int friendId) {
-        validator.checkUserNull(users, users.get(id));
-        validator.checkUserNull(users, users.get(friendId));
-        log.info("Получен GET запрос для списка общих друзей пользователя {} и пользователя {}", users.get(id), users.get(friendId));
-        List<User> answer = users.values().stream()
-                .filter(user -> user.getFriends().contains(id) && user.getFriends().contains(friendId))
-                .collect(Collectors.toList());
+        validator.checkUserNull(users.getUsers(), users.getUserById(id));
+        validator.checkUserNull(users.getUsers(), users.getUserById(friendId));
+        log.info("Получен GET запрос для списка общих друзей пользователя {} и пользователя {}", users.getUserById(id), users.getUserById(friendId));
+        val answer = users.getCommonFriends(id, friendId);
         log.info("Отправлен список общих друзей: {}", answer);
         return answer;
     }
 
     public User getUserById(int id) {
-        validator.checkUserNull(users, users.get(id));
-        return users.get(id);
+        validator.checkUserNull(users.getUsers(), users.getUserById(id));
+        return users.getUserById(id);
     }
 
     public List<User> getUsers() {
-        val answer = new ArrayList<>(users.values());
+        val answer = new ArrayList<>(users.getUsers().values());
         return answer;
     }
 }
