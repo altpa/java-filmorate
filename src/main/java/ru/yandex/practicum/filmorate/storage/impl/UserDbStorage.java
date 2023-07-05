@@ -1,5 +1,7 @@
 package ru.yandex.practicum.filmorate.storage.impl;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
@@ -8,9 +10,11 @@ import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Component("userDbStorage")
 public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
@@ -21,16 +25,20 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public Map<Integer, User> getUsers() {
-        return jdbcTemplate.queryForObject("SELECT * FROM users", new RowMapper<Map<Integer, User>>() {
-            Map<Integer, User> users;
-            @Override
-            public Map<Integer, User> mapRow(ResultSet rs, int rowNum) throws SQLException {
-                do {
-                    users.put(rs.getInt("user_id"), createUser(rs));
-                } while (rs.next());
-                return users;
-            }
-        });
+        Map<Integer, User> users = new HashMap<>();
+        try {
+            return jdbcTemplate.queryForObject("SELECT * FROM users", new RowMapper<Map<Integer, User>>() {
+                @Override
+                public Map<Integer, User> mapRow(ResultSet rs, int rowNum) throws SQLException {
+                    do {
+                        users.put(rs.getInt("user_id"), createUser(rs));
+                    } while (rs.next());
+                    return users;
+                }
+            });
+        } catch (EmptyResultDataAccessException e){
+            return users;
+        }
     }
 
     @Override
@@ -87,6 +95,6 @@ public class UserDbStorage implements UserStorage {
                 rs.getString("name"),
                 rs.getString("email"),
                 rs.getString("login"),
-                rs.getDate("timestamp"));
+                rs.getDate("birthday").toLocalDate());
     }
 }

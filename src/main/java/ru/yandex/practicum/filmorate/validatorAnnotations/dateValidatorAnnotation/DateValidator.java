@@ -5,6 +5,8 @@ import lombok.val;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
 
 public class DateValidator implements ConstraintValidator<InMovieEpoch, LocalDate> {
     @Override
@@ -17,6 +19,7 @@ public class DateValidator implements ConstraintValidator<InMovieEpoch, LocalDat
             return false;
         }
         val filmsEpochBegin = LocalDate.of(1895, 11, 28);
+
         return date.isAfter(filmsEpochBegin);
     }
 }

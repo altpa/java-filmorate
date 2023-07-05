@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.exceptions;
 
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -29,4 +30,10 @@ public class FilmErrorHandler {
     public Map<String, String> handleInternalServerErrorFilmException(final InternalServerErrorFilmException e) {
         return Map.of("error", e.getMessage());
     }
+
+//    @ExceptionHandler
+//    @ResponseStatus(HttpStatus.OK)
+//    public Map<String, String> handleInternalServerErrorFilmException(final EmptyResultDataAccessException e) {
+//        return Map.of("FilmDB", e.getMessage());
+//    }
 }

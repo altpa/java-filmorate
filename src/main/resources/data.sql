@@ -1,2 +1,2 @@
-insert into rating (rating_name) values ('G'), ('PG'), ('PG-13'), ('R'), ('NC-17');
-insert into films (name, description, release_date, duration, rate) values ('Кино 1', 'Описание', '1967-03-25', '100', '0.0');
+INSERT INTO rating (rating_name) VALUES ('G'), ('PG'), ('PG-13'), ('R'), ('NC-17');
+INSERT INTO genre (genre_name) VALUES ('Комедия'), ('Драма'), ('Мультфильм'), ('Триллер'), ('Документальный'), ('Боевик');

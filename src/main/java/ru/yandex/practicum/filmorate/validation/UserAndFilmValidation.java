@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.exceptions.userExceptions.NotFoundUserExcep
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
+import java.util.Collection;
 import java.util.Map;
 
 @Slf4j

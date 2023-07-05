@@ -1,15 +1,17 @@
 package ru.yandex.practicum.filmorate.storage.impl;
 
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component("filmDbStorage")
 public class FilmDbStorage implements FilmStorage {
@@ -21,37 +23,58 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Map<Integer, Film> getFilms() {
-        return jdbcTemplate.queryForObject("SELECT * FROM films", new RowMapper<Map<Integer, Film>>() {
-            @Override
-            public Map<Integer, Film> mapRow(ResultSet rs, int rowNum) throws SQLException {
-                Map<Integer, Film> films = null;
-                do {
-                    films.put(rs.getInt("film_id"), createFilm(rs));
-                } while (rs.next());
-                return films;
-            }
-        });
+        Map<Integer, Film> films = new HashMap<>();
+        try {
+            return jdbcTemplate.queryForObject("SELECT * FROM films", new RowMapper<Map<Integer, Film>>() {
+                @Override
+                public Map<Integer, Film> mapRow(ResultSet rs, int rowNum) throws SQLException {
+                    do {
+                        films.put(rs.getInt("film_id"), createFilm(rs));
+                    } while (rs.next());
+                    return films;
+                }
+            });
+        } catch (EmptyResultDataAccessException e) {
+            return films;
+        }
     }
 
     @Override
     public void addFilm(Film film) {
         jdbcTemplate.update(
-            "INSERT INTO films(name, description, release_date, duration, rate, rating_id, genre_list) VALUES(?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO films(name, description, release_date, duration, rate, rating_id) VALUES(?, ?, ?, ?, ?, ?)",
             film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration(),
-            film.getRate(), film.getRating(), film.getGenre());
+            film.getRate(), film.getMpa().getId());
+
+        if (film.getGenres() != null) {
+            if (film.getGenres().size() > 0) {
+                film.getGenres().forEach((genre) -> {
+                    jdbcTemplate.update("INSERT INTO film_genre_list(film_id, genre_id) VALUES(?, ?)", film.getId(), genre.getId());
+                });
+            }
+        }
     }
 
     @Override
     public void updateFilm(int id, Film film) {
         jdbcTemplate.update(
-            "UPDATE films SET name = ?, description = ?, release_date = ?, duration = ?, rate = ?, rating_id = ?, genre_list = ? WHERE film_id = ?",
+            "UPDATE films SET name = ?, description = ?, release_date = ?, duration = ?, rate = ?, rating_id = ? WHERE film_id = ?",
             film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration(),
-            film.getRate(), film.getRating(), film.getGenre(), id);
+            film.getRate(), film.getMpa().getId(), id);
+
+        if (film.getGenres() != null) {
+            if (film.getGenres().size() > 0) {
+                film.getGenres().forEach((genre) -> {
+                    jdbcTemplate.update("DELETE FROM film_genre_list WHERE film_id = ?", id);
+                    jdbcTemplate.update("INSERT INTO film_genre_list(film_id, genre_id) VALUES(?, ?)", id, genre.getId());
+                });
+            }
+        }
     }
 
     @Override
     public Film getFilmById(int id) {
-        return jdbcTemplate.queryForObject("SELECT * FROM films WHERE film_id = " + id, new RowMapper<Film>() {
+        return jdbcTemplate.queryForObject("SELECT * FROM films WHERE film_id=" + id, new RowMapper<Film>() {
             @Override
             public Film mapRow(ResultSet rs, int rowNum) throws SQLException {
                 return createFilm(rs);
@@ -79,10 +102,40 @@ public class FilmDbStorage implements FilmStorage {
                 rs.getInt("film_id"),
                 rs.getString("name"),
                 rs.getString("description"),
-                rs.getDate("release_date"),
+                rs.getDate("release_date").toLocalDate(),
                 rs.getInt("duration"),
                 rs.getInt("rate"),
-                rs.getInt("rating_id"),
-                rs.getInt("genre_list"));
+                createRating(rs.getInt("rating_id")),
+                createGenres(rs.getInt("film_id")));
+    }
+
+    private Mpa createRating(int id) {
+        return jdbcTemplate.queryForObject("SELECT * FROM rating WHERE rating_id=" + id, new RowMapper<Mpa>() {
+            @Override
+            public Mpa mapRow(ResultSet rs, int rowNum) throws SQLException {
+                Mpa mpa = new Mpa(rs.getInt("rating_id"), rs.getString("rating_name"));
+                return new Mpa(rs.getInt("rating_id"), rs.getString("rating_name"));
+            }
+        });
+    }
+
+    private Set<Genre> createGenres(int id) {
+        Set<Genre> genres = new HashSet<>();
+        if (id > 0) {
+            try {
+                return jdbcTemplate.queryForObject("SELECT fgl.genre_id, g.genre_name FROM film_genre_list fgl JOIN genre g ON g.genre_id = fgl.genre_id WHERE fgl.film_id =" + id, new RowMapper<Set<Genre>>() {
+                    @Override
+                    public Set<Genre> mapRow(ResultSet rs, int rowNum) throws SQLException {
+                        do {
+                            genres.add(new Genre(rs.getInt("genre_id"), rs.getString("genre_name")));
+                        } while (rs.next());
+                        return genres;
+                    }
+                });
+            } catch (EmptyResultDataAccessException e) {
+                return genres;
+            }
+        }
+        return genres;
     }
 }

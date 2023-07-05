@@ -9,7 +9,9 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.validation.UserAndFilmValidation;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -17,6 +19,8 @@ import java.util.stream.Collectors;
 public class FilmService {
     private final UserAndFilmValidation validation;
     private final FilmStorage films;
+    private int counter = 0;
+
 
     @Autowired
     public FilmService(@Qualifier("filmDbStorage")FilmStorage filmStorage, UserAndFilmValidation validation) {
@@ -26,8 +30,10 @@ public class FilmService {
 
     public Film addFilm(Film film) {
         validation.checkFilmRequest(film);
+        counter++;
+        film.setId(counter);
         films.addFilm(film);
-        return film;
+        return films.getFilmById(counter);
     }
 
     public Film updateFilm(Film film) {
@@ -39,7 +45,7 @@ public class FilmService {
     }
 
     public List<Film> getFilms() {
-        return (List<Film>) films.getFilms().values();
+        return new ArrayList<Film>(films.getFilms().values());
     }
 
     public Film setLike(int id, int userId) {

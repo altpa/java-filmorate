@@ -51,9 +51,9 @@ public class FilmController {
 
     @GetMapping("/{id}")
     public Film getFilmById(@PathVariable int id) {
-        log.info("Получен PUT запрос для добавления лайка фильму с id:{}", id);
+        log.info("Получен GET запрос для поиска фильма с id:{}", id);
         val answer = filmService.getFilmById(id);
-        log.info("Фильму {} добавлен лайк", answer);
+        log.info("Отправлен фильм: {}", answer);
         return answer;
     }
 

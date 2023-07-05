@@ -28,6 +28,7 @@ public class UserService {
         validator.checkUserRequest(user);
         validator.checkEmptyName(user);
         users.addUser(user);
+        user.setId(users.getUsers().size());
         return user;
     }
 
