@@ -1,6 +1,4 @@
 # java-filmorate
 
-![image](https://github.com/altpa/java-filmorate/assets/122366009/08ab5c85-f780-408b-86cf-0214f65a6a23)
+![image](https://github.com/altpa/java-filmorate/assets/122366009/af22653f-42a8-4eca-87ca-57e9453df327)
 
-
-*[Ссылка](https://app.quickdatabasediagrams.com/#/d/Bvk5GG) на схему.*
