@@ -2,14 +2,11 @@ package ru.yandex.practicum.filmorate.storage.impl;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.filmException.BadRequestFilmException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.validation.UserAndFilmValidation;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,5 +59,10 @@ public class InMemoryFilmStorage implements FilmStorage {
                 .sorted((film1, film2) -> film2.getLikes().size() - film1.getLikes().size())
                 .limit(count)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public int getMaxId() {
+        return 0;
     }
 }

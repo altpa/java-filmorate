@@ -59,7 +59,7 @@ public class FilmController {
 
     @PutMapping("/{id}/like/{userId}")
     public Film setLike(@PathVariable int id, @PathVariable int userId) {
-        log.info("Получен PUT запрос для добавления лайка id:{} у фильма id:{}", userId, id);
+        log.info("Получен PUT запрос для добавления лайка пользователя с id:{} у фильма id:{}", userId, id);
         val answer = filmService.setLike(id, userId);
         log.info("Фильму {} добавлен лайк", answer);
         return answer;

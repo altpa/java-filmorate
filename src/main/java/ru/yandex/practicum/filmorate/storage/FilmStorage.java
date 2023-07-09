@@ -19,4 +19,6 @@ public interface FilmStorage {
     void deleteLike(int id, int userId);
 
     List<Film> getMostLiked(String countParam);
+
+    int getMaxId();
 }

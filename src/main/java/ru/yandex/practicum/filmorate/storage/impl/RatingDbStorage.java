@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.impl;
 
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
@@ -21,26 +22,52 @@ public class RatingDbStorage implements RatingStorage {
 
     @Override
     public List<Mpa> getRatings() {
-        return jdbcTemplate.queryForObject("SELECT * FROM ratings", new RowMapper<List<Mpa>>() {
-            List<Mpa> ratings = new ArrayList<>();
-            @Override
-            public List<Mpa> mapRow(ResultSet rs, int rowNum) throws SQLException {
-                do {
-                    ratings.add(createRating(rs));
-                } while (rs.next());
-                return ratings;
-            }
-        });
+        List<Mpa> ratings = new ArrayList<>();
+        try {
+            return jdbcTemplate.queryForObject("SELECT * FROM rating", new RowMapper<List<Mpa>>() {
+                @Override
+                public List<Mpa> mapRow(ResultSet rs, int rowNum) throws SQLException {
+                    do {
+                        ratings.add(createRating(rs));
+                    } while (rs.next());
+                    return ratings;
+                }
+            });
+        } catch (EmptyResultDataAccessException e) {
+            return ratings;
+        }
     }
 
     @Override
     public Mpa getRatingById(int id) {
-        return jdbcTemplate.queryForObject("select * from ratings where rating_id = " + id, new RowMapper<Mpa>() {
-            @Override
-            public Mpa mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return createRating(rs);
-            }
-        });
+        try {
+            return jdbcTemplate.queryForObject("select * from rating where rating_id = " + id, new RowMapper<Mpa>() {
+                @Override
+                public Mpa mapRow(ResultSet rs, int rowNum) throws SQLException {
+                    return createRating(rs);
+                }
+            });
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+    }
+
+    @Override
+    public List<Integer> getMpaIds() {
+        List<Integer> mpaIds = new ArrayList<>();
+        try {
+            return jdbcTemplate.queryForObject("select rating_id from rating", new RowMapper<List<Integer>>() {
+                @Override
+                public List<Integer> mapRow(ResultSet rs, int rowNum) throws SQLException {
+                    do {
+                        mpaIds.add(rs.getInt("rating_id"));
+                    } while (rs.next());
+                    return mpaIds;
+                }
+            });
+        } catch (EmptyResultDataAccessException e) {
+            return mpaIds;
+        }
     }
 
     private Mpa createRating(ResultSet rs) throws SQLException {

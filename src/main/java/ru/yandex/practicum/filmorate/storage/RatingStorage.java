@@ -6,5 +6,8 @@ import java.util.List;
 
 public interface RatingStorage {
     List<Mpa> getRatings();
+
     Mpa getRatingById(int id);
+
+    List<Integer> getMpaIds();
 }

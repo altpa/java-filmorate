@@ -28,8 +28,7 @@ public class UserService {
         validator.checkUserRequest(user);
         validator.checkEmptyName(user);
         users.addUser(user);
-        user.setId(users.getUsers().size());
-        return user;
+        return users.getUserById(users.getMaxId());
     }
 
     public User updateUser(User user) {
@@ -37,7 +36,7 @@ public class UserService {
         validator.checkUsersContainUser(users.getUsers(), user);
         log.info("Обновлен будет пользователь: {}", user);
         users.updateUser(user);
-        return user;
+        return users.getUserById(user.getId());
     }
 
     public User addToFriends(int id, int friendId) {

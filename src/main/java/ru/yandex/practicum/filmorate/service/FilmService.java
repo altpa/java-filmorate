@@ -11,16 +11,13 @@ import ru.yandex.practicum.filmorate.validation.UserAndFilmValidation;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class FilmService {
     private final UserAndFilmValidation validation;
-    private final FilmStorage films;
-    private int counter = 0;
 
+    private final FilmStorage films;
 
     @Autowired
     public FilmService(@Qualifier("filmDbStorage")FilmStorage filmStorage, UserAndFilmValidation validation) {
@@ -30,10 +27,8 @@ public class FilmService {
 
     public Film addFilm(Film film) {
         validation.checkFilmRequest(film);
-        counter++;
-        film.setId(counter);
         films.addFilm(film);
-        return films.getFilmById(counter);
+        return films.getFilmById(films.getMaxId());
     }
 
     public Film updateFilm(Film film) {
@@ -41,7 +36,7 @@ public class FilmService {
         validation.checkFilmsContainFilm(films.getFilms(), film);
         log.info("Будет обновлен фильм {}", film);
         films.updateFilm(film.getId(), film);
-        return film;
+        return films.getFilmById(film.getId());
     }
 
     public List<Film> getFilms() {
@@ -66,10 +61,7 @@ public class FilmService {
         if (count < 0) {
             throw new BadRequestFilmException("count отрицательное");
         }
-        return films.getFilms().values().stream()
-                .sorted((film1, film2) -> film2.getLikes().size() - film1.getLikes().size())
-                .limit(count)
-                .collect(Collectors.toList());
+        return films.getMostLiked(countParam);
     }
 
     public Film getFilmById(int id) {

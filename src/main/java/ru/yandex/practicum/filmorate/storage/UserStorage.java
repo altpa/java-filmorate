@@ -21,4 +21,6 @@ public interface UserStorage {
     List<User> getCommonFriends(int id, int friendId);
 
     User getUserById(int id);
+
+    int getMaxId();
 }

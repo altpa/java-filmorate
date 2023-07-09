@@ -4,17 +4,17 @@ server:
 spring:
   sql.init.mode: always
   datasource:
-#    url: jdbc:h2:file:./db/filmorate
-    url: jdbc:postgresql://localhost:5432/filmorate
-#    driverClassName: org.h2.Driver
-    driverClassName: org.postgresql.Driver
+    url: jdbc:h2:file:./db/filmorate
+    driverClassName: org.h2.Driver
+#    url: jdbc:postgresql://localhost:5432/filmorate
+#    driverClassName: org.postgresql.Driver
     jpa:
       database: postgresql
       database-platform: org.hibernate.dialect.PostgreSQL10Dialect
-#    username: sa
-#    password: password
-    username: filmorate
+    username: sa
     password: password
+#    username: filmorate
+#    password: password
 #  h2:
 #    console:
 #      enabled: true

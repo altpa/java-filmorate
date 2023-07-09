@@ -12,6 +12,6 @@ public class Mpa {
     private final String name;
 
     public String toString() {
-        return "{id: " + this.getId() + ". name: " + this.getName() +"}";
+        return "{id: " + this.getId() + ". name: " + this.getName() + "}";
     }
 }
