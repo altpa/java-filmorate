@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@AutoConfigureTestDatabase(replace= AutoConfigureTestDatabase.Replace.NONE)
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Sql({"/schema.sql", "/test-data.sql"})
 class FilmStorageTest {
     @Autowired
@@ -59,7 +59,7 @@ class FilmStorageTest {
     }
 
     @Test
-    public void GetFilmById() {
+    public void getFilmById() {
         assertThat(filmStorage.getFilmById(1)).hasFieldOrPropertyWithValue("name", "Film Name1");
     }
 
