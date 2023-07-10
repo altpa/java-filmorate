@@ -26,9 +26,10 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public Map<Integer, User> getUsers() {
+        final String SQL_STR = "SELECT * FROM users";
         Map<Integer, User> users = new HashMap<>();
         try {
-            return jdbcTemplate.queryForObject("SELECT * FROM users", new RowMapper<Map<Integer, User>>() {
+            return jdbcTemplate.queryForObject(SQL_STR, new RowMapper<Map<Integer, User>>() {
                 @Override
                 public Map<Integer, User> mapRow(ResultSet rs, int rowNum) throws SQLException {
                     do {
@@ -44,71 +45,49 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public void addUser(User user) {
+        final String SQL_STR = "INSERT INTO users(name, email, login, birthday) VALUES(?, ?, ?, ?)";
         int newId = getMaxId() + 1;
         user.setId(newId);
-        jdbcTemplate.update("INSERT INTO users(name, email, login, birthday) VALUES(?, ?, ?, ?)",
+        jdbcTemplate.update(SQL_STR,
                 user.getName(), user.getEmail(), user.getLogin(), user.getBirthday());
     }
 
     @Override
     public void updateUser(User user) {
-        jdbcTemplate.update("UPDATE users SET name = ?, email = ?, login = ?, birthday = ? WHERE user_id = ?",
+        final String SQL_STR = "UPDATE users SET name = ?, email = ?, login = ?, birthday = ? WHERE user_id = ?";
+        jdbcTemplate.update(SQL_STR,
                 user.getName(), user.getEmail(), user.getLogin(), user.getBirthday(), user.getId());
     }
 
     @Override
     public void addToFriends(int id, int friendId) {
-        jdbcTemplate.update("INSERT INTO friends(user_id, friend_id) VALUES (?, ?)", id, friendId);
+        final String SQL_STR = "INSERT INTO friends(user_id, friend_id) VALUES (?, ?)";
+        jdbcTemplate.update(SQL_STR, id, friendId);
     }
 
     @Override
     public void deleteFromFriends(int id, int friendId) {
-        jdbcTemplate.update("DELETE FROM friends WHERE user_id = ? AND friend_id = ?", id, friendId);
+        final String SQL_STR = "DELETE FROM friends WHERE user_id = ? AND friend_id = ?";
+        jdbcTemplate.update(SQL_STR, id, friendId);
     }
 
     @Override
     public List<User> getFriends(int id) {
-        List<User> friends = new ArrayList<>();
-        try {
-            jdbcTemplate.queryForObject("select * from users u where u.user_id in (select friend_id from friends where user_id = " + id + " union select user_id from friends where friend_id = " + id + "  and user_id = " + id + ")", new RowMapper<List<User>>() {
-                @Override
-                public List<User> mapRow(ResultSet rs, int rowNum) throws SQLException {
-                    do {
-                        friends.add(createUser(rs));
-                    } while (rs.next());
-                    return friends;
-                }
-            });
-            return friends;
-        } catch (EmptyResultDataAccessException e) {
-            return friends;
-        }
+        final String SQL_STR = "select * from users u where u.user_id in (select friend_id from friends where user_id = " + id + " union select user_id from friends where friend_id = " + id + "  and user_id = " + id + ")";
+        return getFriends(SQL_STR);
     }
 
     @Override
     public List<User> getCommonFriends(int id, int friendId) {
-        List<User> commonFriends = new ArrayList<>();
-        try {
-            jdbcTemplate.queryForObject("select * from users u where u.user_id in (select friend_id from friends f where (f.user_id = " + id + " or f.user_id = " + friendId + ") and not (friend_id = " + id + " or friend_id = " + friendId + ") group by friend_id);", new RowMapper<List<User>>() {
-                @Override
-                public List<User> mapRow(ResultSet rs, int rowNum) throws SQLException {
-                    do {
-                        commonFriends.add(createUser(rs));
-                    } while (rs.next());
-                    return commonFriends;
-                }
-            });
-            return commonFriends;
-        } catch (EmptyResultDataAccessException e) {
-            return commonFriends;
-        }
-
+        final String SQL_STR = "select * from users u where u.user_id in (select friend_id from friends f where (f.user_id = " + id + " or f.user_id = " + friendId + ") and not (friend_id = " + id + " or friend_id = " + friendId + ") group by friend_id);";
+        return getFriends(SQL_STR);
     }
 
     @Override
     public User getUserById(int id) {
+        final String SQL_STR = "SELECT * FROM users WHERE user_id = ";
         try {
-            return jdbcTemplate.queryForObject("SELECT * FROM users WHERE user_id = " + id, new RowMapper<User>() {
+            return jdbcTemplate.queryForObject(SQL_STR + id, new RowMapper<User>() {
                 @Override
                 public User mapRow(ResultSet rs, int rowNum) throws SQLException {
                     return createUser(rs);
@@ -121,8 +100,8 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public int getMaxId() {
-        Integer maxId = jdbcTemplate.queryForObject(
-                "SELECT max(user_id) as maxId FROM users;", new RowMapper<Integer>() {
+        final String SQL_STR = "SELECT max(user_id) as maxId FROM users;";
+        Integer maxId = jdbcTemplate.queryForObject(SQL_STR, new RowMapper<Integer>() {
                     @Override
                     public Integer mapRow(ResultSet rs, int rowNum) throws SQLException {
                         return rs.getInt("maxId");
@@ -142,4 +121,23 @@ public class UserDbStorage implements UserStorage {
                 rs.getString("login"),
                 rs.getDate("birthday").toLocalDate());
     }
+
+    private List<User> getFriends(String SQL_STR) {
+        List<User> friends = new ArrayList<>();
+        try {
+            jdbcTemplate.queryForObject(SQL_STR, new RowMapper<List<User>>() {
+                @Override
+                public List<User> mapRow(ResultSet rs, int rowNum) throws SQLException {
+                    do {
+                        friends.add(createUser(rs));
+                    } while (rs.next());
+                    return friends;
+                }
+            });
+            return friends;
+        } catch (EmptyResultDataAccessException e) {
+            return friends;
+        }
+    }
+
 }

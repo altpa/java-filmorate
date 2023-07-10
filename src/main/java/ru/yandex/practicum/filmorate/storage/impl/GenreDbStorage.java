@@ -22,10 +22,11 @@ public class GenreDbStorage implements GenreStorage {
 
     @Override
     public List<Genre> getGenres() {
+        final String SQL_STR = "SELECT * FROM genre";
         List<Genre> genres = new ArrayList<>();
         try {
-            return jdbcTemplate.queryForObject("SELECT * FROM genre", new RowMapper<List<Genre>>() {
-                List<Genre> genres = new ArrayList<>();
+            return jdbcTemplate.queryForObject(SQL_STR, new RowMapper<List<Genre>>() {
+                final List<Genre> genres = new ArrayList<>();
                 @Override
                 public List<Genre> mapRow(ResultSet rs, int rowNum) throws SQLException {
                     do {
@@ -42,8 +43,9 @@ public class GenreDbStorage implements GenreStorage {
 
     @Override
     public Genre getGenreById(int id) {
+        final String SQL_STR = "select * from genre where genre_id = ";
         try {
-            return jdbcTemplate.queryForObject("select * from genre where genre_id = " + id, new RowMapper<Genre>() {
+            return jdbcTemplate.queryForObject(SQL_STR + id, new RowMapper<Genre>() {
                 @Override
                 public Genre mapRow(ResultSet rs, int rowNum) throws SQLException {
                     return createGenre(rs);
@@ -56,9 +58,10 @@ public class GenreDbStorage implements GenreStorage {
 
     @Override
     public List<Integer> getGenreIds() {
+        final String SQL_STR = "SELECT genre_id FROM genre";
         List<Integer> genres = new ArrayList<>();
         try {
-            return jdbcTemplate.queryForObject("select genre_id from genre", new RowMapper<List<Integer>>() {
+            return jdbcTemplate.queryForObject(SQL_STR, new RowMapper<List<Integer>>() {
                 @Override
                 public List<Integer> mapRow(ResultSet rs, int rowNum) throws SQLException {
                     do {

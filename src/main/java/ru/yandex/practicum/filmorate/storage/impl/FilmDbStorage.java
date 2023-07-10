@@ -12,6 +12,7 @@ import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -28,9 +29,10 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Map<Integer, Film> getFilms() {
+        final String SQL_STR = "SELECT * FROM films";
         Map<Integer, Film> films = new HashMap<>();
         try {
-            return jdbcTemplate.queryForObject("SELECT * FROM films", new RowMapper<Map<Integer, Film>>() {
+            return jdbcTemplate.queryForObject(SQL_STR, new RowMapper<Map<Integer, Film>>() {
                 @Override
                 public Map<Integer, Film> mapRow(ResultSet rs, int rowNum) throws SQLException {
                     do {
@@ -46,17 +48,18 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public void addFilm(Film film) {
+        final String SQL_STR_FILM = "INSERT INTO films(name, description, release_date, duration, rate, rating_id) VALUES(?, ?, ?, ?, ?, ?)";
+        final String SQL_STR_GENRE = "INSERT INTO film_genre_list(film_id, genre_id) VALUES(?, ?)";
         int newId = getMaxId() + 1;
         film.setId(newId);
-        jdbcTemplate.update(
-            "INSERT INTO films(name, description, release_date, duration, rate, rating_id) VALUES(?, ?, ?, ?, ?, ?)",
+        jdbcTemplate.update(SQL_STR_FILM,
             film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration(),
             film.getRate(), film.getMpa().getId());
 
         if (film.getGenres() != null) {
             if (film.getGenres().size() > 0) {
                 film.getGenres().forEach((genre) -> {
-                    jdbcTemplate.update("INSERT INTO film_genre_list(film_id, genre_id) VALUES(?, ?)", film.getId(), genre.getId());
+                    jdbcTemplate.update(SQL_STR_GENRE, film.getId(), genre.getId());
                 });
             }
         }
@@ -64,23 +67,26 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public void updateFilm(int id, Film film) {
-        jdbcTemplate.update(
-            "UPDATE films SET name = ?, description = ?, release_date = ?, duration = ?, rate = ?, rating_id = ? WHERE film_id = ?",
+        final String SQL_STR_FILM = "UPDATE films SET name = ?, description = ?, release_date = ?, duration = ?, rate = ?, rating_id = ? WHERE film_id = ?";
+        final String SQL_STR_GENRE_DEL = "DELETE FROM film_genre_list WHERE film_id = ?";
+        final String SQL_STR_GENRE_ADD = "INSERT INTO film_genre_list(film_id, genre_id) VALUES(?, ?)";
+        jdbcTemplate.update(SQL_STR_FILM,
             film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration(),
             film.getRate(), film.getMpa().getId(), id);
 
         if (film.getGenres() != null) {
-            jdbcTemplate.update("DELETE FROM film_genre_list WHERE film_id = ?", id);
+            jdbcTemplate.update(SQL_STR_GENRE_DEL, id);
             film.getGenres().forEach((genre) -> {
-                jdbcTemplate.update("INSERT INTO film_genre_list(film_id, genre_id) VALUES(?, ?)", id, genre.getId());
+                jdbcTemplate.update(SQL_STR_GENRE_ADD, id, genre.getId());
             });
         }
     }
 
     @Override
     public Film getFilmById(int id) {
+        final String SQL_STR_FILM = "SELECT * FROM films WHERE film_id=";
         try {
-            return jdbcTemplate.queryForObject("SELECT * FROM films WHERE film_id=" + id, new RowMapper<Film>() {
+            return jdbcTemplate.queryForObject(SQL_STR_FILM + id, new RowMapper<Film>() {
                 @Override
                 public Film mapRow(ResultSet rs, int rowNum) throws SQLException {
                     return createFilm(rs);
@@ -93,33 +99,50 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public void setLike(int id, int userId) {
-        jdbcTemplate.update("INSERT INTO likes(film_id, user_id) VALUES(?, ?)", id, userId);
-        jdbcTemplate.update("update films SET rate = rate + 1 where film_id = ? ", id);
+        final String SQL_STR_LIKE_ADD = "INSERT INTO likes(film_id, user_id) VALUES(?, ?)";
+        final String SQL_STR_FILM = "UPDATE films SET rate = rate + 1 WHERE film_id = ?";
+        updateLike(SQL_STR_LIKE_ADD, SQL_STR_FILM, id, userId);
     }
 
     @Override
     public void deleteLike(int id, int userId) {
-        jdbcTemplate.update("DELETE FROM likes WHERE film_id = ? AND user_id = ?", id, userId);
-        jdbcTemplate.update("UPDATE films SET rate = rate - 1 WHERE film_id = ? ", id);
+        final String SQL_STR_LIKE_DEL = "DELETE FROM likes WHERE film_id = ? AND user_id = ?";
+        final String SQL_STR_FILM = "UPDATE films SET rate = rate - 1 WHERE film_id = ? ";
+        updateLike(SQL_STR_LIKE_DEL, SQL_STR_FILM, id, userId);
     }
 
     @Override
     public List<Film> getMostLiked(String countParam) {
+        final String SQL_STR = "SELECT * FROM films ORDER BY rate DESC LIMIT ";
         List<Film> mostLiked = new ArrayList<>();
         try {
-          jdbcTemplate.queryForObject("SELECT * FROM films ORDER BY rate DESC LIMIT " + countParam + ";", new RowMapper<List<Film>>() {
-              @Override
-              public List<Film> mapRow(ResultSet rs, int rowNum) throws SQLException {
-                  do {
-                      mostLiked.add(createFilm(rs));
-                  } while (rs.next());
-                  return mostLiked;
-              }
-          });
+            return jdbcTemplate.queryForObject(SQL_STR + countParam, new RowMapper<List<Film>>() {
+                @Override
+                public List<Film> mapRow(ResultSet rs, int rowNum) throws SQLException {
+                    do {
+                        mostLiked.add(createFilm(rs));
+                    } while (rs.next());
+                    return mostLiked;
+                }
+            });
         } catch (EmptyResultDataAccessException e) {
             return mostLiked;
         }
-        return mostLiked;
+    }
+
+    @Override
+    public int getMaxId() {
+        final String SQL_STR = "SELECT max(film_id) AS maxId FROM films";
+        Integer maxId = jdbcTemplate.queryForObject(SQL_STR, new RowMapper<Integer>() {
+            @Override
+            public Integer mapRow(ResultSet rs, int rowNum) throws SQLException {
+                return rs.getInt("maxId");
+            }
+        });
+        if (maxId != null) {
+            return maxId;
+        }
+        return 0;
     }
 
     private Film createFilm(ResultSet rs) throws SQLException {
@@ -136,9 +159,10 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     private Set<Integer> createLikes(int id) {
+        final String SQL_STR = "SELECT user_id FROM likes WHERE film_id = ";
         Set<Integer> likes = new HashSet<>();
         try {
-            return jdbcTemplate.queryForObject("select user_id from likes where film_id = " + id, new RowMapper<Set<Integer>>() {
+            return jdbcTemplate.queryForObject(SQL_STR + id, new RowMapper<Set<Integer>>() {
                 @Override
                 public Set<Integer> mapRow(ResultSet rs, int rowNum) throws SQLException {
                     do {
@@ -153,7 +177,8 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     private Mpa createRating(int id) {
-        return jdbcTemplate.queryForObject("SELECT * FROM rating WHERE rating_id=" + id, new RowMapper<Mpa>() {
+        final String SQL_STR = "SELECT * FROM rating WHERE rating_id=";
+        return jdbcTemplate.queryForObject(SQL_STR + id, new RowMapper<Mpa>() {
             @Override
             public Mpa mapRow(ResultSet rs, int rowNum) throws SQLException {
                 return new Mpa(rs.getInt("rating_id"), rs.getString("rating_name"));
@@ -162,10 +187,11 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     private List<Genre> createGenres(int id) {
+        final String SQL_STR = "SELECT fgl.genre_id, g.genre_name FROM film_genre_list fgl JOIN genre g ON g.genre_id = fgl.genre_id WHERE fgl.film_id =";
         List<Genre> genres = new ArrayList<>();
         if (id > 0) {
             try {
-                    return jdbcTemplate.queryForObject("SELECT fgl.genre_id, g.genre_name FROM film_genre_list fgl JOIN genre g ON g.genre_id = fgl.genre_id WHERE fgl.film_id =" + id, new RowMapper<List<Genre>>() {
+                return jdbcTemplate.queryForObject(SQL_STR + id, new RowMapper<List<Genre>>() {
                     @Override
                     public List<Genre> mapRow(ResultSet rs, int rowNum) throws SQLException {
                         do {
@@ -175,13 +201,11 @@ public class FilmDbStorage implements FilmStorage {
                         HashMap<Integer, Genre> map = new HashMap<Integer, Genre>();
                         for (Genre genre : genres) {
                             int genreId = genre.getId();
-                            if (!map.containsKey(genreId)) {
-                                map.put(genreId, genre);
-                            }
+                            map.putIfAbsent(genreId, genre);
                         }
 
                         List<Genre> result = new ArrayList<Genre>(map.values());
-                        result.sort((o1, o2) -> o1.getId() - (o2.getId()));
+                        result.sort(Comparator.comparingInt(Genre::getId));
                         return result;
                     }
                 });
@@ -192,18 +216,8 @@ public class FilmDbStorage implements FilmStorage {
         return genres;
     }
 
-    @Override
-    public int getMaxId() {
-        Integer maxId = jdbcTemplate.queryForObject(
-                "SELECT max(film_id) as maxId FROM films;", new RowMapper<Integer>() {
-                    @Override
-                    public Integer mapRow(ResultSet rs, int rowNum) throws SQLException {
-                        return rs.getInt("maxId");
-                    }
-                });
-        if (maxId != null) {
-            return maxId;
-        }
-        return 0;
+    private void updateLike(String SQL_STR_LIKE, String SQL_STR_FILM, int id, int userId) {
+        jdbcTemplate.update(SQL_STR_LIKE, id, userId);
+        jdbcTemplate.update(SQL_STR_FILM, id);
     }
 }

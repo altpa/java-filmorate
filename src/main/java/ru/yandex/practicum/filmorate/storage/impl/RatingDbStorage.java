@@ -22,9 +22,10 @@ public class RatingDbStorage implements RatingStorage {
 
     @Override
     public List<Mpa> getRatings() {
+        final String SQL_STR = "SELECT * FROM rating";
         List<Mpa> ratings = new ArrayList<>();
         try {
-            return jdbcTemplate.queryForObject("SELECT * FROM rating", new RowMapper<List<Mpa>>() {
+            return jdbcTemplate.queryForObject(SQL_STR, new RowMapper<List<Mpa>>() {
                 @Override
                 public List<Mpa> mapRow(ResultSet rs, int rowNum) throws SQLException {
                     do {
@@ -40,8 +41,9 @@ public class RatingDbStorage implements RatingStorage {
 
     @Override
     public Mpa getRatingById(int id) {
+        final String SQL_STR = "select * from rating where rating_id = ";
         try {
-            return jdbcTemplate.queryForObject("select * from rating where rating_id = " + id, new RowMapper<Mpa>() {
+            return jdbcTemplate.queryForObject(SQL_STR + id, new RowMapper<Mpa>() {
                 @Override
                 public Mpa mapRow(ResultSet rs, int rowNum) throws SQLException {
                     return createRating(rs);
@@ -54,9 +56,10 @@ public class RatingDbStorage implements RatingStorage {
 
     @Override
     public List<Integer> getMpaIds() {
+        final String SQL_STR = "SELECT rating_id FROM rating";
         List<Integer> mpaIds = new ArrayList<>();
         try {
-            return jdbcTemplate.queryForObject("select rating_id from rating", new RowMapper<List<Integer>>() {
+            return jdbcTemplate.queryForObject(SQL_STR, new RowMapper<List<Integer>>() {
                 @Override
                 public List<Integer> mapRow(ResultSet rs, int rowNum) throws SQLException {
                     do {

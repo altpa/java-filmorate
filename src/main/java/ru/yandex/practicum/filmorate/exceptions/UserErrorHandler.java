@@ -29,10 +29,4 @@ public class UserErrorHandler {
     public Map<String, String> handleInternalServerErrorUserException(final InternalServerErrorUserException e) {
         return Map.of("error", e.getMessage());
     }
-
-//    @ExceptionHandler
-//    @ResponseStatus(HttpStatus.OK)
-//    public Map<String, String> handleInternalServerErrorFilmException(final EmptyResultDataAccessException e) {
-//        return Map.of("UserDB", e.getMessage());
-//    }
 }
