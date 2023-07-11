@@ -28,32 +28,32 @@ public class FilmService {
     public Film addFilm(Film film) {
         validation.checkFilmRequest(film);
         films.addFilm(film);
-        return films.getFilmById(films.getMaxId());
+        return films.getFilmById(films.getMaxId()).get();
     }
 
     public Film updateFilm(Film film) {
         validation.checkFilmRequest(film);
-        validation.checkFilmsContainFilm(films.getFilms(), film);
+        validation.checkFilmNull(films.getFilmById(film.getId()));
         log.info("Будет обновлен фильм {}", film);
         films.updateFilm(film.getId(), film);
-        return films.getFilmById(film.getId());
+        return films.getFilmById(film.getId()).get();
     }
 
     public List<Film> getFilms() {
-        return new ArrayList<Film>(films.getFilms().values());
+        return new ArrayList<>(films.getFilms().values());
     }
 
     public Film setLike(int id, int userId) {
-        validation.checkFilmNull(films.getFilms(), films.getFilmById(id));
+        validation.checkFilmNull(films.getFilmById(id));
         films.setLike(id, userId);
-        return films.getFilmById(id);
+        return films.getFilmById(id).get();
     }
 
     public Film deleteLike(int id, int userId) {
-        validation.checkFilmNull(films.getFilms(), films.getFilmById(id));
-        validation.checkFilmsHaveLike(userId, films.getFilmById(id));
+        validation.checkFilmNull(films.getFilmById(id));
+        validation.checkFilmsHaveLike(userId, films.getFilmById(id).get());
         films.deleteLike(id, userId);
-        return films.getFilmById(id);
+        return films.getFilmById(id).get();
     }
 
     public List<Film> getMostLiked(String countParam) {
@@ -65,7 +65,7 @@ public class FilmService {
     }
 
     public Film getFilmById(int id) {
-        validation.checkFilmNull(films.getFilms(), films.getFilmById(id));
-        return films.getFilmById(id);
+        validation.checkFilmNull(films.getFilmById(id));
+        return films.getFilmById(id).get();
     }
 }

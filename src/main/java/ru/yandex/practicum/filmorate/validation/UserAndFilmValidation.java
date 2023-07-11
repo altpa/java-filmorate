@@ -2,13 +2,14 @@ package ru.yandex.practicum.filmorate.validation;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exceptions.filmException.NotFoundFilmException;
+import ru.yandex.practicum.filmorate.exceptions.filmException.DbFilmException;
 import ru.yandex.practicum.filmorate.exceptions.userExceptions.BadRequestUserException;
 import ru.yandex.practicum.filmorate.exceptions.userExceptions.NotFoundUserException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @Component
@@ -22,8 +23,8 @@ public class UserAndFilmValidation {
         log.info("Пользователь {} прошел проверку имени: {}", user.getName(), user);
     }
 
-    public void checkUserNull(Map<Integer, User> users, User user) {
-        if (user == null) {
+    public void checkUserNull(Optional<User> user) {
+        if (user.isEmpty()) {
             throw new NotFoundUserException("User == null");
         }
     }
@@ -42,25 +43,25 @@ public class UserAndFilmValidation {
 
     public void checkFilmRequest(Film film) {
         if (film == null) {
-            throw new NotFoundFilmException("Пустой запрос");
+            throw new DbFilmException("Пустой запрос");
         }
     }
 
-    public void checkFilmNull(Map<Integer, Film> films, Film film) {
-        if (film == null) {
-            throw new NotFoundFilmException("Film == null");
+    public void checkFilmNull(Optional<Film> film) {
+        if (film.isEmpty()) {
+            throw new DbFilmException("Film == null");
         }
     }
 
     public void checkFilmsContainFilm(Map<Integer, Film> films, Film film) {
         if (!films.containsKey(film.getId())) {
-            throw new NotFoundFilmException("Такого фильма нет, id: " + film.getId());
+            throw new DbFilmException("Такого фильма нет, id: " + film.getId());
         }
     }
 
     public void checkFilmsHaveLike(int userId, Film film) {
         if (!film.getLikes().contains(userId)) {
-            throw new NotFoundFilmException("У фильма " + film + " нет лайков от id:" + userId);
+            throw new DbFilmException("У фильма " + film + " нет лайков от id:" + userId);
         }
     }
 }

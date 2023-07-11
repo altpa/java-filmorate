@@ -46,7 +46,7 @@ class UserStorageTest {
         User updateUser = new User(1,"Updated user name", "UpdatedEmail@mail.com", "Updated_login",
                 LocalDate.of(1900, 10, 10));
         userStorage.updateUser(updateUser);
-        assertThat(userStorage.getUserById(1)).hasFieldOrPropertyWithValue("name", "Updated user name");
+        assertThat(userStorage.getUserById(1)).get().hasFieldOrPropertyWithValue("name", "Updated user name");
     }
 
     @Test
@@ -75,7 +75,7 @@ class UserStorageTest {
 
     @Test
     public void getUserById() {
-        assertThat(userStorage.getUserById(1)).hasFieldOrPropertyWithValue("name", "User Name1");
+        assertThat(userStorage.getUserById(1)).get().hasFieldOrPropertyWithValue("name", "User Name1");
     }
 
     @Test

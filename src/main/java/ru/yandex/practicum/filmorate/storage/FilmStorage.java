@@ -4,6 +4,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public interface FilmStorage {
     Map<Integer, Film> getFilms();
@@ -12,7 +13,7 @@ public interface FilmStorage {
 
     void updateFilm(int id, Film film);
 
-    Film getFilmById(int id);
+    Optional<Film> getFilmById(int id);
 
     void setLike(int id, int userId);
 

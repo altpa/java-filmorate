@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -28,51 +27,47 @@ public class UserService {
         validator.checkUserRequest(user);
         validator.checkEmptyName(user);
         users.addUser(user);
-        return users.getUserById(users.getMaxId());
+        return users.getUserById(users.getMaxId()).get();
     }
 
     public User updateUser(User user) {
         validator.checkUserRequest(user);
-        validator.checkUsersContainUser(users.getUsers(), user);
+        validator.checkUserNull(users.getUserById(user.getId()));
         log.info("Обновлен будет пользователь: {}", user);
         users.updateUser(user);
-        return users.getUserById(user.getId());
+        return users.getUserById(user.getId()).get();
     }
 
     public User addToFriends(int id, int friendId) {
-        validator.checkUserNull(users.getUsers(), users.getUserById(id));
-        validator.checkUserNull(users.getUsers(), users.getUserById(friendId));
+        validator.checkUserNull(users.getUserById(id));
+        validator.checkUserNull(users.getUserById(friendId));
         users.addToFriends(id, friendId);
-        return users.getUserById(id);
+        return users.getUserById(id).get();
     }
 
     public User deleteFromFriends(int id, int friendId) {
-        validator.checkUserNull(users.getUsers(), users.getUserById(id));
+        validator.checkUserNull(users.getUserById(id));
         users.deleteFromFriends(id, friendId);
-        return users.getUserById(id);
+        return users.getUserById(id).get();
     }
 
     public List<User> getFriends(int id) {
-        validator.checkUserNull(users.getUsers(), users.getUserById(id));
+        validator.checkUserNull(users.getUserById(id));
         return users.getFriends(id);
     }
 
     public List<User> getCommonFriends(int id, int friendId) {
-        validator.checkUserNull(users.getUsers(), users.getUserById(id));
-        validator.checkUserNull(users.getUsers(), users.getUserById(friendId));
-        log.info("Получен GET запрос для списка общих друзей пользователя {} и пользователя {}", users.getUserById(id), users.getUserById(friendId));
-        val answer = users.getCommonFriends(id, friendId);
-        log.info("Отправлен список общих друзей: {}", answer);
-        return answer;
+        validator.checkUserNull(users.getUserById(id));
+        validator.checkUserNull(users.getUserById(friendId));
+        return users.getCommonFriends(id, friendId);
     }
 
     public User getUserById(int id) {
-        validator.checkUserNull(users.getUsers(), users.getUserById(id));
-        return users.getUserById(id);
+        validator.checkUserNull(users.getUserById(id));
+        return users.getUserById(id).get();
     }
 
     public List<User> getUsers() {
-        val answer = new ArrayList<>(users.getUsers().values());
-        return answer;
+        return new ArrayList<>(users.getUsers().values());
     }
 }

@@ -43,8 +43,8 @@ public class UserController {
     @GetMapping
     public List<User> getUsers() {
         log.info("Получен GET запрос для списка пользователей");
-        val answer = userService.getUsers();
-        log.info("Отправлен список пользователей: {}", answer);
+        val answer =  userService.getUsers();
+        log.info("Получен список пользователей: {}", answer);
         return answer;
     }
 

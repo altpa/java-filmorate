@@ -2,18 +2,23 @@ package ru.yandex.practicum.filmorate.storage.impl;
 
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exceptions.genreExceptions.DbGenreException;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.GenreStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class GenreDbStorage implements GenreStorage {
+    private static final String GET_GENRES = "SELECT * FROM genre";
+    private static final String GET_GENRE_BY_ID = "select * from genre where genre_id = ";
+    private static final String GET_GENRE_IDS = "SELECT genre_id FROM genre";
     private final JdbcTemplate jdbcTemplate;
 
     public GenreDbStorage(JdbcTemplate jdbcTemplate) {
@@ -22,35 +27,22 @@ public class GenreDbStorage implements GenreStorage {
 
     @Override
     public List<Genre> getGenres() {
-        final String SQL_STR = "SELECT * FROM genre";
         List<Genre> genres = new ArrayList<>();
-        try {
-            return jdbcTemplate.queryForObject(SQL_STR, new RowMapper<List<Genre>>() {
-                final List<Genre> genres = new ArrayList<>();
-                @Override
-                public List<Genre> mapRow(ResultSet rs, int rowNum) throws SQLException {
-                    do {
-                        genres.add(createGenre(rs));
-                    } while (rs.next());
-                    genres.sort((o1, o2) -> o1.getId() - (o2.getId()));
-                    return genres;
-                }
-            });
-        } catch (EmptyResultDataAccessException e) {
+        Optional<List<Genre>> genresOpt = jdbcTemplate.query(GET_GENRES, (rs, rowNum) -> {
+            do {
+                genres.add(createGenre(rs));
+            } while (rs.next());
+            genres.sort(Comparator.comparingInt(Genre::getId));
             return genres;
-        }
+        }).stream().findFirst();
+
+        return genresOpt.orElse(new ArrayList<>());
     }
 
     @Override
     public Genre getGenreById(int id) {
-        final String SQL_STR = "select * from genre where genre_id = ";
         try {
-            return jdbcTemplate.queryForObject(SQL_STR + id, new RowMapper<Genre>() {
-                @Override
-                public Genre mapRow(ResultSet rs, int rowNum) throws SQLException {
-                    return createGenre(rs);
-                }
-            });
+            return jdbcTemplate.queryForObject(GET_GENRE_BY_ID + id, (rs, rowNum) -> createGenre(rs));
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
@@ -58,24 +50,22 @@ public class GenreDbStorage implements GenreStorage {
 
     @Override
     public List<Integer> getGenreIds() {
-        final String SQL_STR = "SELECT genre_id FROM genre";
         List<Integer> genres = new ArrayList<>();
-        try {
-            return jdbcTemplate.queryForObject(SQL_STR, new RowMapper<List<Integer>>() {
-                @Override
-                public List<Integer> mapRow(ResultSet rs, int rowNum) throws SQLException {
-                    do {
-                        genres.add(rs.getInt("genre_id"));
-                    } while (rs.next());
-                    return genres;
-                }
-            });
-        } catch (EmptyResultDataAccessException e) {
+        Optional<List<Integer>> genresOpt = jdbcTemplate.query(GET_GENRE_IDS, (rs, rowNum) -> {
+            do {
+                genres.add(rs.getInt("genre_id"));
+            } while (rs.next());
             return genres;
-        }
+        }).stream().findFirst();
+
+        return genresOpt.orElse(new ArrayList<>());
     }
 
-    private Genre createGenre(ResultSet rs) throws SQLException {
-        return new Genre(rs.getInt("genre_id"), rs.getString("genre_name"));
+    private Genre createGenre(ResultSet rs) {
+        try {
+            return new Genre(rs.getInt("genre_id"), rs.getString("genre_name"));
+        } catch (SQLException e) {
+            throw new DbGenreException("Ошибка в БД");
+        }
     }
 }

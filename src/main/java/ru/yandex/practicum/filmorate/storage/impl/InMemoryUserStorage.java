@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -64,8 +65,8 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User getUserById(int id) {
-        return users.get(id);
+    public Optional<User> getUserById(int id) {
+        return Optional.of(users.get(id));
     }
 
     @Override

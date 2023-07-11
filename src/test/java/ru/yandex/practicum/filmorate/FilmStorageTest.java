@@ -43,7 +43,7 @@ class FilmStorageTest {
                 LocalDate.of(1900, 10, 10), 100, 2, null, new Mpa(1, "G"),
                 new ArrayList<>(Arrays.asList(new Genre(1, "Комедия"), new Genre(2, "Драма"))));
         filmStorage.addFilm(newFilm);
-        assertThat(filmStorage.getFilmById(3)).hasFieldOrPropertyWithValue("name", "New Film Name");
+        assertThat(filmStorage.getFilmById(3)).get().hasFieldOrPropertyWithValue("name", "New Film Name");
     }
 
     @Test
@@ -52,12 +52,12 @@ class FilmStorageTest {
                 LocalDate.of(2000, 11, 11), 100, 2, null, new Mpa(1, "G"),
                 new ArrayList<>(List.of(new Genre(1, "Комедия"))));
         filmStorage.updateFilm(1, updatedFilm);
-        assertThat(filmStorage.getFilmById(1)).hasFieldOrPropertyWithValue("name", "Updated Film Name");
+        assertThat(filmStorage.getFilmById(1)).get().hasFieldOrPropertyWithValue("name", "Updated Film Name");
     }
 
     @Test
     public void getFilmById() {
-        assertThat(filmStorage.getFilmById(1)).hasFieldOrPropertyWithValue("name", "Film Name1");
+        assertThat(filmStorage.getFilmById(1)).get().hasFieldOrPropertyWithValue("name", "Film Name1");
     }
 
     @Test

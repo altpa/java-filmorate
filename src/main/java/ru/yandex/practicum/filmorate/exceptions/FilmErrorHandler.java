@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.yandex.practicum.filmorate.exceptions.filmException.InternalServerErrorFilmException;
-import ru.yandex.practicum.filmorate.exceptions.filmException.NotFoundFilmException;
+import ru.yandex.practicum.filmorate.exceptions.filmException.DbFilmException;
 
 import java.util.Map;
 
@@ -13,7 +13,7 @@ import java.util.Map;
 public class FilmErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public Map<String, String> handleNotFoundException(final NotFoundFilmException e) {
+    public Map<String, String> handleNotFoundException(final DbFilmException e) {
         return Map.of("error", e.getMessage());
     }
 

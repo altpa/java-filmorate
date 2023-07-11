@@ -13,7 +13,6 @@ import java.util.Set;
 @Data
 @AllArgsConstructor
 public class User {
-
     private int id;
     private String name;
     @Email(message = "Ошибка в email пользователя")
