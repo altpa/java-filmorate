@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.filmException.BadRequestFilmException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -10,52 +11,49 @@ import ru.yandex.practicum.filmorate.validation.UserAndFilmValidation;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class FilmService {
     private final UserAndFilmValidation validation;
-    private final Map<Integer, Film> films;
-    private int idCounter = 1;
+
+    private final FilmStorage films;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage, UserAndFilmValidation validation) {
+    public FilmService(@Qualifier("filmDbStorage")FilmStorage filmStorage, UserAndFilmValidation validation) {
         this.validation = validation;
-        films = filmStorage.getFilms();
+        this.films = filmStorage;
     }
 
     public Film addFilm(Film film) {
         validation.checkFilmRequest(film);
-        film.setId(idCounter++);
-        films.put(film.getId(), film);
-        return film;
+        films.addFilm(film);
+        return films.getFilmById(films.getMaxId()).get();
     }
 
     public Film updateFilm(Film film) {
         validation.checkFilmRequest(film);
-        validation.checkFilmsContainFilm(films, film);
-        log.info("Будет обновлен фильм {}", films.get(film.getId()));
-        films.put(film.getId(), film);
-        return film;
+        validation.checkFilmNull(films.getFilmById(film.getId()));
+        log.info("Будет обновлен фильм {}", film);
+        films.updateFilm(film.getId(), film);
+        return films.getFilmById(film.getId()).get();
     }
 
     public List<Film> getFilms() {
-        return new ArrayList<>(films.values());
+        return new ArrayList<>(films.getFilms().values());
     }
 
     public Film setLike(int id, int userId) {
-        validation.checkFilmNull(films, films.get(id));
-        films.get(id).getLikes().add(userId);
-        return films.get(id);
+        validation.checkFilmNull(films.getFilmById(id));
+        films.setLike(id, userId);
+        return films.getFilmById(id).get();
     }
 
     public Film deleteLike(int id, int userId) {
-        validation.checkFilmNull(films, films.get(id));
-        validation.checkFilmsHaveLike(userId, films.get(id));
-        films.get(id).getLikes().remove(userId);
-        return films.get(id);
+        validation.checkFilmNull(films.getFilmById(id));
+        validation.checkFilmsHaveLike(userId, films.getFilmById(id).get());
+        films.deleteLike(id, userId);
+        return films.getFilmById(id).get();
     }
 
     public List<Film> getMostLiked(String countParam) {
@@ -63,14 +61,11 @@ public class FilmService {
         if (count < 0) {
             throw new BadRequestFilmException("count отрицательное");
         }
-        return films.values().stream()
-                .sorted((film1, film2) -> film2.getLikes().size() - film1.getLikes().size())
-                .limit(count)
-                .collect(Collectors.toList());
+        return films.getMostLiked(countParam);
     }
 
     public Film getFilmById(int id) {
-        validation.checkFilmNull(films, films.get(id));
-        return films.get(id);
+        validation.checkFilmNull(films.getFilmById(id));
+        return films.getFilmById(id).get();
     }
 }

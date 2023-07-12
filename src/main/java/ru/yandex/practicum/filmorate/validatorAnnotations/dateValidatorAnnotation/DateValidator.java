@@ -17,6 +17,7 @@ public class DateValidator implements ConstraintValidator<InMovieEpoch, LocalDat
             return false;
         }
         val filmsEpochBegin = LocalDate.of(1895, 11, 28);
+
         return date.isAfter(filmsEpochBegin);
     }
 }
